@@ -257,7 +257,10 @@ export class SiyuanDocumentApi {
           b.ial,
           dt.depth + 1 as depth
         FROM blocks b
-        INNER JOIN doc_tree dt ON b.parent_id = dt.id
+        -- SiYuan document blocks always have an empty parent_id; child
+        -- documents hang off the file path: /<parent-doc-id>/<child-doc-id>.sy
+        INNER JOIN doc_tree dt
+          ON b.path = substr(dt.path, 1, length(dt.path) - 3) || '/' || b.id || '.sy'
         WHERE b.type = 'd'
           AND dt.depth < ${maxDepth}
       )

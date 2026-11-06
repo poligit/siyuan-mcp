@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-11-07
+
+### Fixed
+- `get_document_tree` with a **document ID** now returns child documents. Previously the recursive SQL joined children on `b.parent_id = dt.id`, but SiYuan document blocks always have an empty `parent_id` (hierarchy lives in `blocks.path`), so requesting a subtree by document id returned only the node itself. Child docs are now joined via the file path: `b.path = substr(dt.path, 1, length(dt.path) - 3) || '/' || b.id || '.sy'`. Verified live against a SiYuan kernel (notebook trees unchanged, document subtrees complete). Regression test: `__tests__/document-tree.test.ts`.
+
 ## [0.1.6] - 2025-10-27
 
 ### Improved
