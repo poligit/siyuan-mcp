@@ -410,28 +410,23 @@ describe('SiYuan MCP Server Integration Tests', () => {
       );
 
       expect(result).toBeDefined();
-      expect(result).toHaveProperty('count');
-      expect(result).toHaveProperty('updatedIds');
-      console.log(`  Replace result: ${result.count} blocks updated`);
+      expect(typeof result).toBe('boolean');
+      console.log(`  Replace result: ${result}`);
 
-      if (result.count === 0) {
-        console.log('  ⚠️  No blocks were updated - tag might not be found');
-        // Skip the rest of the test if nothing was updated
+      if (result === false) {
+        console.log('  ⚠️  Tag replacement reported failure');
         return;
       }
 
-      expect(result.count).toBeGreaterThan(0);
-      expect(Array.isArray(result.updatedIds)).toBe(true);
-      expect(result.updatedIds.length).toBeGreaterThan(0);
+      expect(result).toBe(true);
 
-      console.log(`✓ Replaced tag "${tempTag}" → "${newTag}" (${result.count} blocks updated)`);
-      console.log(`  Updated block IDs: ${result.updatedIds.join(', ')}`);
+      console.log(`✓ Replaced tag "${tempTag}" → "${newTag}"`);
 
       // Wait for update to propagate
       await new Promise(resolve => setTimeout(resolve, 500));
 
       // 3. Verify the tag was replaced by querying the markdown content
-      const verifyStmt = `SELECT id, markdown FROM blocks WHERE id = '${result.updatedIds[0]}'`;
+      const verifyStmt = `SELECT id, markdown FROM blocks WHERE markdown LIKE '%${newTag}%'`;
       const verifyBlocks = await context.siyuan.search.query(verifyStmt);
 
       expect(verifyBlocks.length).toBeGreaterThan(0);

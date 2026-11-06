@@ -9,7 +9,7 @@ import type { DocTreeNodeResponse } from '../../src/types/index.js';
 /**
  * 获取文档内容
  */
-export class GetDocumentContentHandler extends BaseToolHandler<{ document_id: string; offset?: number; limit?: number }, string> {
+export class GetDocumentContentHandler extends BaseToolHandler<{ document_id?: string; id?: string; offset?: number; limit?: number }, string> {
   readonly name = 'get_document_content';
   readonly description = 'Read the markdown content of a note in SiYuan. Returns the full note content in markdown format, with optional pagination support';
   readonly inputSchema: JSONSchema = {
@@ -17,7 +17,11 @@ export class GetDocumentContentHandler extends BaseToolHandler<{ document_id: st
     properties: {
       document_id: {
         type: 'string',
-        description: 'The note document ID (block ID)',
+        description: 'The note document ID (block ID). "id" is accepted as an alias.',
+      },
+      id: {
+        type: 'string',
+        description: 'Alias for document_id — either key is accepted.',
       },
       offset: {
         type: 'number',
@@ -29,12 +33,15 @@ export class GetDocumentContentHandler extends BaseToolHandler<{ document_id: st
         description: 'Number of lines to return. If not specified, returns all lines from offset to end',
       },
     },
-    required: ['document_id'],
   };
 
   async execute(args: any, context: ExecutionContext): Promise<string> {
+    const docId = args.document_id ?? args.id;
+    if (!docId) {
+      throw new Error('Missing document id: provide either "document_id" or "id"');
+    }
     // 获取完整内容用于计算总行数
-    const fullContent = await context.siyuan.getFileContent(args.document_id);
+    const fullContent = await context.siyuan.getFileContent(docId);
     const lines = fullContent.split('\n');
     const totalLines = lines.length;
 
@@ -272,7 +279,7 @@ export class MoveDocumentsHandler extends BaseToolHandler<
  * 获取文档树
  */
 export class GetDocumentTreeHandler extends BaseToolHandler<
-  { id: string; depth?: number },
+  { id?: string; document_id?: string; depth?: number },
   DocTreeNodeResponse[]
 > {
   readonly name = 'get_document_tree';
@@ -282,7 +289,11 @@ export class GetDocumentTreeHandler extends BaseToolHandler<
     properties: {
       id: {
         type: 'string',
-        description: 'Starting point: note document ID or notebook ID',
+        description: 'Starting point: note document ID or notebook ID. "document_id" is accepted as an alias.',
+      },
+      document_id: {
+        type: 'string',
+        description: 'Alias for id — either key is accepted.',
       },
       depth: {
         type: 'number',
@@ -290,11 +301,14 @@ export class GetDocumentTreeHandler extends BaseToolHandler<
         default: 1,
       },
     },
-    required: ['id'],
   };
 
   async execute(args: any, context: ExecutionContext): Promise<DocTreeNodeResponse[]> {
+    const startId = args.id ?? args.document_id;
+    if (!startId) {
+      throw new Error('Missing start id: provide either "id" or "document_id"');
+    }
     const depth = args.depth || 1;
-    return await context.siyuan.document.getDocumentTree(args.id, depth);
+    return await context.siyuan.document.getDocumentTree(startId, depth);
   }
 }

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-11-07
+
+### Fixed
+- **Document-id argument alias:** `get_document_content` (requires `document_id`) and `get_document_tree` (requires `id`) now accept **either key** — mixing them previously produced a schema/missing-argument error. Both schemas drop the hard `required` and reject with a clear message only when neither key is given. Regression tests: `__tests__/document-id-alias.test.ts`.
+- Fixed pre-existing compile error in `__tests__/integration.test.ts` (expected `count`/`updatedIds` properties from the tag-replace API, which returns `boolean` since v0.1.6).
+
 ## [0.1.7] - 2026-11-07
 
 ### Fixed
