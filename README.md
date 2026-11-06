@@ -2,6 +2,10 @@
 
 [中文文档](./README_zh.md) | English
 
+> **Maintained fork.** Upstream [arkkwang/siyuan-mcp](https://github.com/arkkwang/siyuan-mcp) (formerly `porkll/siyuan-mcp`) was archived in 2025 and is no longer maintained. This fork carries fixes; the upstream PR path is closed (archived repos are read-only). See [CHANGELOG.md](./CHANGELOG.md) for details.
+>
+> Fixed so far (v0.1.7): `get_document_tree` with a **document ID** returned no children — SiYuan document blocks always have an empty `parent_id`, so the recursive SQL never matched child docs. Child docs are now joined via `blocks.path`. Regression test included.
+
 A Model Context Protocol (MCP) server for SiYuan Note, enabling AI assistants like Claude, Cursor, and other MCP-compatible tools to interact with your SiYuan notes seamlessly.
 
 ## ⚠️ Important Notice | 重要声明
