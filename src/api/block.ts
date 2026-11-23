@@ -30,6 +30,15 @@ export class SiyuanBlockApi {
       '/api/export/exportMdContent',
       { id: blockId }
     );
+    if (!response.data) {
+      // SiYuan liefert {code:-1, data:null} z. B. bei ungültigem API-Token
+      // oder nicht existierender Block-ID — klare Fehlermeldung statt TypeError.
+      throw new Error(
+        `exportMdContent returned no data for block "${blockId}" ` +
+        `(code: ${response.code}, msg: ${response.msg || 'unknown'}). ` +
+        'Common causes: invalid/expired API token, or block ID does not exist.'
+      );
+    }
     return response.data.content;
   }
 
